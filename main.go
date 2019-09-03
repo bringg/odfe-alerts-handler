@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,11 +10,16 @@ import (
 	"time"
 
 	"github.com/bringg/odfe-alerts-handler/handlers"
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const shutdownTimeout time.Duration = 60 * time.Second
+
+func init() {
+	log.SetHeader("${time_rfc3339} ${level}\t${short_file}:${line}\t")
+}
 
 func main() {
 	hostname, _ := os.Hostname()
@@ -47,23 +51,23 @@ func main() {
 		Token: *slackToken,
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/email/{address}", emailHandler.HTTPHandler)
-	r.HandleFunc("/slack/{channel}", slackHandler.HTTPHandler)
+	e := echo.New()
+	e.HideBanner = true
 
-	srv := &http.Server{
+	e.POST("/slack", slackHandler.EchoHandler)
+	e.POST("/email", emailHandler.EchoHandler)
+
+	s := &http.Server{
 		Addr: *listenAddress,
 
 		// Good practice to set timeouts :)
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      r,
 	}
 
 	go func() {
-		log.Printf("Starting listening on %s...", *listenAddress)
-		log.Fatal(srv.ListenAndServe())
+		log.Fatal(e.StartServer(s))
 	}()
 
 	c := make(chan os.Signal, 1)
@@ -75,6 +79,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	srv.Shutdown(ctx)
+	s.Shutdown(ctx)
 	os.Exit(0)
 }

@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"net/smtp"
@@ -13,8 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	emailClient "github.com/jordan-wright/email"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 var subjectRe = regexp.MustCompile(`(?i)^(\s+)?subject:(\s+)?`)
@@ -67,23 +67,28 @@ func (e *email) send() error {
 	return client.Send(net.JoinHostPort(e.Host, strconv.Itoa(e.Port)), auth)
 }
 
-// HTTPHandler handles incoming http request
-// 1: Get the data from the request body
-// 2: Prepare email for sending (optionally get subject from the body)
-// 3: Call email.send method
-func (e Email) HTTPHandler(resp http.ResponseWriter, req *http.Request) {
-	addresses := strings.Split(mux.Vars(req)["address"], ",")
-	response := fmt.Sprintf("email successfuly sent, to: %v\n", addresses)
+// EchoHandler sends email per each incoming http request
+func (e Email) EchoHandler(c echo.Context) error {
+	var addresses []string
 
-	defer req.Body.Close()
-	requestBody, err := ioutil.ReadAll(req.Body)
+	if c.QueryParam("addresses") != "" {
+		addresses = strings.Split(c.QueryParam("addresses"), ",")
+	}
 
+	if len(addresses) == 0 {
+		response := "email was not sent, no addresses param provided"
+
+		log.Error(response)
+		return echo.NewHTTPError(http.StatusBadRequest, response)
+	}
+
+	defer c.Request().Body.Close()
+	requestBody, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
-		response = fmt.Sprintf("email was not sent, failed to read body, %v", err)
+		response := fmt.Sprintf("email was not sent, failed to read body, %v", err)
 
-		log.Print(response)
-		http.Error(resp, response, http.StatusInternalServerError)
-		return
+		log.Error(response)
+		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
 	emailer := email{
@@ -95,13 +100,13 @@ func (e Email) HTTPHandler(resp http.ResponseWriter, req *http.Request) {
 	emailer.prepareSubject()
 
 	if err := emailer.send(); err != nil {
-		response = fmt.Sprintf("email was not sent, to: %v, subject: %s, %v", emailer.to, emailer.subject, err)
+		response := fmt.Sprintf("email was not sent, to: %v, subject: %s, %v", addresses, emailer.subject, err)
 
-		log.Print(response)
-		http.Error(resp, response, http.StatusInternalServerError)
-		return
+		log.Error(response)
+		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
-	log.Print(response)
-	fmt.Fprint(resp, response)
+	response := fmt.Sprintf("email successfuly sent, to: %v, subject: %s", addresses, emailer.subject)
+	log.Info(response)
+	return echo.NewHTTPError(http.StatusOK, response)
 }
