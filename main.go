@@ -61,13 +61,14 @@ func main() {
 		Addr: *listenAddress,
 
 		// Good practice to set timeouts :)
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: time.Second * 30,
+		ReadTimeout:  time.Second * 10,
 	}
 
 	go func() {
-		log.Fatal(e.StartServer(s))
+		if err := e.StartServer(s); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
 	}()
 
 	c := make(chan os.Signal, 1)
@@ -75,10 +76,11 @@ func main() {
 	<-c // Block until the signals
 
 	// Create a deadline to wait for.
-	log.Printf("Shutting down with graceful timeout of %v", shutdownTimeout)
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	s.Shutdown(ctx)
-	os.Exit(0)
+	log.Info("shutting down with graceful timeout of", shutdownTimeout)
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
