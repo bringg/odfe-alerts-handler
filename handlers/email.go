@@ -10,7 +10,6 @@ import (
 	"net/smtp"
 	"regexp"
 	"strconv"
-	"strings"
 
 	emailClient "github.com/jordan-wright/email"
 	"github.com/labstack/echo/v4"
@@ -69,11 +68,7 @@ func (e *email) send() error {
 
 // EchoHandler sends email per each incoming http request
 func (e Email) EchoHandler(c echo.Context) error {
-	var addresses []string
-
-	if c.QueryParam("addresses") != "" {
-		addresses = strings.Split(c.QueryParam("addresses"), ",")
-	}
+	addresses := fields(c.QueryParam("addresses"), ',')
 
 	if len(addresses) == 0 {
 		response := "email was not sent, no addresses param provided"

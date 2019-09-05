@@ -104,15 +104,7 @@ func (s Slack) EchoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, response)
 	}
 
-	var channels, users []string
-
-	if c.QueryParam("channels") != "" {
-		channels = strings.Split(c.QueryParam("channels"), ",")
-	}
-
-	if c.QueryParam("users") != "" {
-		users = strings.Split(c.QueryParam("users"), ",")
-	}
+	channels, users := fields(c.QueryParam("channels"), ','), fields(c.QueryParam("users"), ',')
 
 	if len(channels) == 0 && len(users) == 0 {
 		response := "slack message was not sent, no channels or users params provided"
