@@ -57,6 +57,9 @@ Fill in `Type`, `Host` and `Port` according to how and where you installed `ofde
     - Key: `addresses`
     - Value: comma separated list of emails to send
 
+You can also override the default subject.
+If the first line of the alert message contains `Subject:`, that line will be use as subject for the email.
+
 ### Configuring for Slack
 
 1. Set `Path` to `slack`
