@@ -40,9 +40,32 @@ Download latest version for your platform from [releases](https://github.com/bri
                                 SMTP default subject.
         --slack.token=""         Slack token for posting messages.
 
-## Setup ODFE Alerting destinations
+## Configure ODFE Alerting destinations
 
-TBA
+### First
+
+1. Go to `Alerting` > `Destinations`
+2. Create the destination with type `Custom webhook`
+3. Chose `Define endpoint by custom attributes URL`
+
+Fill in `Type`, `Host` and `Port` according to how and where you installed `ofde-alerts-handler`.
+
+### Configuring for Email
+
+1. Set `Path` to `email`
+2. Set `Query parameters` as follows:
+    - Key: `addresses`
+    - Value: comma separated list of emails to send
+
+### Configuring for Slack
+
+1. Set `Path` to `slack`
+2. Set `Query parameters` as follows:
+    - Key: `channels` or `users`
+    - Value: comma separated list of user **emails** or list of channels
+
+You can have both `channels` and `users` keys if you desire to send to both.
+Optionally, for `channels` you can omit the leading `#`.
 
 ## License
 
