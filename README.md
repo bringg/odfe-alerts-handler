@@ -12,7 +12,7 @@ As for time  of writing `destination` options that `ODFE` provides are limited.
 ## Features
 
 - Ability to handle emails, and even send emails to multiple addresses within same webhook
-- Ability to post to multiple slack channels within same webhook
+- Ability to post to multiple slack channels and/or users within same webhook
 
 ## Install
 
@@ -20,7 +20,7 @@ Download latest version for your platform from [releases](https://github.com/bri
 
 ## With Docker
 
-    docker run --rm bringg/ofde-alerts-handler
+    docker run --rm -p 8080:8080 bringg/odfe-alerts-handler --help
 
 ## Usage
 
@@ -48,7 +48,7 @@ Download latest version for your platform from [releases](https://github.com/bri
 2. Create the destination with type `Custom webhook`
 3. Chose `Define endpoint by custom attributes URL`
 
-Fill in `Type`, `Host` and `Port` according to how and where you installed `ofde-alerts-handler`.
+Fill in `Type`, `Host` and `Port` according to how and where you installed `odfe-alerts-handler`.
 
 ### Configuring for Email
 
@@ -58,7 +58,7 @@ Fill in `Type`, `Host` and `Port` according to how and where you installed `ofde
     - Value: comma separated list of emails to send
 
 You can also override the default subject.
-If the first line of the alert message contains `Subject:`, that line will be use as subject for the email.
+If the first line of the alert message contains `Subject:`, that line will be used as a subject for the email.
 
 ### Configuring for Slack
 
