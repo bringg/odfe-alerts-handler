@@ -70,6 +70,17 @@ If the first line of the alert message contains `Subject:`, that line will be us
 You can have both `channels` and `users` keys if you desire to send to both.
 Optionally, for `channels` you can omit the leading `#`.
 
+## Creating a release
+
+```shell
+RELEASE_TITLE="First release"
+RELEASE_VERSION=0.1.0
+
+git tag -a v${RELEASE_VERSION} -m "${RELEASE_TITLE}"
+git push --tags
+goreleaser --rm-dist
+```
+
 ## License
 
 Licensed under the MIT License. See the LICENSE file for details.
