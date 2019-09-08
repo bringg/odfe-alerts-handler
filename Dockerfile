@@ -12,5 +12,7 @@ RUN go install
 FROM alpine:latest
 LABEL maintainer "Alex Simenduev <shamil.si@gmail.com>"
 
-COPY --from=builder /go/bin/odfe-alerts-handler /usr/local/bin/
 ENTRYPOINT ["odfe-alerts-handler"]
+
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /go/bin/odfe-alerts-handler /usr/local/bin/
