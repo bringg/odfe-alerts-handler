@@ -1,22 +1,16 @@
 package handlers
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/smtp"
-	"regexp"
 	"strconv"
 
 	emailClient "github.com/jordan-wright/email"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
-
-var subjectRe = regexp.MustCompile(`(?i)^(\s+)?subject:(\s+)?`)
 
 // Email used to configure common params for sending email
 type Email struct {
@@ -30,31 +24,18 @@ type Email struct {
 
 // email used by the handler to set params per incoming request
 type email struct {
-	Email
+	*Email
 
-	subject string
-	to      []string
+	Subject string
+	To      []string
 	data    []byte
-}
-
-func (e *email) prepareSubject() {
-	scanner := bufio.NewScanner(bytes.NewReader(e.data))
-	scanner.Scan()
-
-	if subjectRe.Match(scanner.Bytes()) {
-		e.subject = subjectRe.ReplaceAllString(scanner.Text(), "")
-		e.data = e.data[len(scanner.Bytes()):]
-		return
-	}
-
-	e.subject = e.DefaultSubject
 }
 
 func (e *email) send() error {
 	client := &emailClient.Email{
-		To:      e.to,
+		To:      e.To,
 		From:    e.From,
-		Subject: e.subject,
+		Subject: e.Subject,
 		Text:    e.data,
 	}
 
@@ -68,40 +49,38 @@ func (e *email) send() error {
 
 // EchoHandler sends email per each incoming http request
 func (e Email) EchoHandler(c echo.Context) error {
-	addresses := fields(c.QueryParam("addresses"), ',')
+	emailer := email{
+		Email:   &e,
+		Subject: e.DefaultSubject,
+	}
 
-	if len(addresses) == 0 {
-		response := "email was not sent, no addresses param provided"
+	defer c.Request().Body.Close()
+	data, err := parseBody(c.Request().Body, &emailer)
+
+	if err != nil {
+		response := fmt.Sprintf("email was not sent, %v", err)
+
+		log.Error(response)
+		return echo.NewHTTPError(http.StatusInternalServerError, response)
+	}
+
+	if len(emailer.To) == 0 {
+		response := "email was not sent, 'To' param wasn't provided"
 
 		log.Error(response)
 		return echo.NewHTTPError(http.StatusBadRequest, response)
 	}
 
-	defer c.Request().Body.Close()
-	requestBody, err := ioutil.ReadAll(c.Request().Body)
-	if err != nil {
-		response := fmt.Sprintf("email was not sent, failed to read body, %v", err)
-
-		log.Error(response)
-		return echo.NewHTTPError(http.StatusInternalServerError, response)
-	}
-
-	emailer := email{
-		Email: e,
-		data:  requestBody,
-		to:    addresses,
-	}
-
-	emailer.prepareSubject()
+	emailer.data = []byte(data)
 
 	if err := emailer.send(); err != nil {
-		response := fmt.Sprintf("email was not sent, to: %v, subject: %s, %v", addresses, emailer.subject, err)
+		response := fmt.Sprintf("email was not sent, to: %v, subject: %s, %v", emailer.To, emailer.Subject, err)
 
 		log.Error(response)
 		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
-	response := fmt.Sprintf("email successfuly sent, to: %v, subject: %s", addresses, emailer.subject)
+	response := fmt.Sprintf("email successfuly sent, to: %v, subject: %s", emailer.To, emailer.Subject)
 	log.Info(response)
 	return echo.NewHTTPError(http.StatusOK, response)
 }
