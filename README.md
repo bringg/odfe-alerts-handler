@@ -65,7 +65,7 @@ This is the body of the message
 Here you can use the templeting as usual...
 ```
 
-`subject` is optional, if not provided the default one, see [#usage](usage).
+`subject` is optional, if not provided the default one used, see [usage](#usage).
 
 ### Sending Slack from triggers
 
