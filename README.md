@@ -2,6 +2,8 @@
 
 An HTTP server which used to handle webhooks triggered by [OpenDistro for Elasticsearch Alerting](https://opendistro.github.io/for-elasticsearch-docs/docs/alerting)
 
+> Notice, the readme is for `0.2.x` version
+
 ## Why?
 
 As for time  of writing `destination` options that `ODFE` provides are limited.
@@ -46,26 +48,37 @@ Download latest version for your platform from [releases](https://github.com/bri
 
 1. Go to `Alerting` > `Destinations`
 2. Create the destination with type `Custom webhook`
-3. Chose `Define endpoint by custom attributes URL`
+3. Choose `Define endpoint by URL`
+    - For `slack` set the url to have path with `/slack`, like `http://odfe-server:8080/slack`
+    - For `email` set the url to have path with `/email`, like `http://odfe-server:8080/email`
 
-Fill in `Type`, `Host` and `Port` according to how and where you installed `odfe-alerts-handler`.
+### Sending Email from triggers
 
-### Configuring for Email
+1. Select destination which was created with the `/email` path
+2. The `Message` body look like below:
 
-1. Set `Path` to `email`
-2. Set `Query parameters` as follows:
-    - Key: `addresses`
-    - Value: comma separated list of emails to send
+```yaml
+to: ['example@test.com']
+subject: ['Optional subject param']
+---
+This is the body of the message
+Here you can use the templeting as usual...
+```
 
-You can also override the default subject.
-If the first line of the alert message contains `Subject:`, that line will be used as a subject for the email.
+`subject` is optional, if not provided the default one, see [#usage](usage).
 
-### Configuring for Slack
+### Sending Slack from triggers
 
-1. Set `Path` to `slack`
-2. Set `Query parameters` as follows:
-    - Key: `channels` or `users`
-    - Value: comma separated list of user **emails** or list of channels
+1. Select destination which was created with the `/slack` path
+2. The `Message` body look like below:
+
+```yaml
+channels: ['#alerts']
+users: ['test@example.com']
+---
+This is the body of the message
+Here you can use the templeting as usual...
+```
 
 You can have both `channels` and `users` keys if you desire to send to both.
 Optionally, for `channels` you can omit the leading `#`.
@@ -74,7 +87,7 @@ Optionally, for `channels` you can omit the leading `#`.
 
 ```shell
 RELEASE_TITLE="First release"
-RELEASE_VERSION=0.1.0
+RELEASE_VERSION=0.2.0
 
 git tag -a v${RELEASE_VERSION} -m "${RELEASE_TITLE}"
 git push --tags

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -20,10 +19,10 @@ type Slack struct {
 
 // slack used by the handler to set params per incoming request
 type slack struct {
-	Slack
+	*Slack `yaml:"-"`
 
-	channels []string
-	users    []string
+	Channels []string
+	Users    []string
 	text     string
 }
 
@@ -38,7 +37,7 @@ func (s *slack) getClient() *slackAPI.Client {
 func (s slack) postToChannels() error {
 	var result error
 
-	for _, channel := range s.channels {
+	for _, channel := range s.Channels {
 		if !strings.HasPrefix(channel, "#") {
 			channel = "#" + channel
 		}
@@ -54,7 +53,7 @@ func (s slack) postToChannels() error {
 func (s slack) postToUsers() error {
 	var result error
 
-	for _, user := range s.users {
+	for _, user := range s.Users {
 
 		user, err := s.getClient().GetUserByEmail(user)
 		if err != nil {
@@ -80,13 +79,13 @@ func (s slack) postToUsers() error {
 func (s slack) post() error {
 	var result error
 
-	if len(s.channels) > 0 {
+	if len(s.Channels) > 0 {
 		if err := s.postToChannels(); err != nil {
 			result = multierror.Append(result, err)
 		}
 	}
 
-	if len(s.users) > 0 {
+	if len(s.Users) > 0 {
 		if err := s.postToUsers(); err != nil {
 			result = multierror.Append(result, err)
 		}
@@ -104,39 +103,37 @@ func (s Slack) EchoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, response)
 	}
 
-	channels, users := fields(c.QueryParam("channels"), ','), fields(c.QueryParam("users"), ',')
+	slacker := slack{
+		Slack: &s,
+	}
 
-	if len(channels) == 0 && len(users) == 0 {
+	defer c.Request().Body.Close()
+	text, err := parseBody(c.Request().Body, &slacker)
+
+	if err != nil {
+		response := fmt.Sprintf("slack message was not sent, %v", err)
+
+		log.Error(response)
+		return echo.NewHTTPError(http.StatusInternalServerError, response)
+	}
+
+	if len(slacker.Channels) == 0 && len(slacker.Users) == 0 {
 		response := "slack message was not sent, no channels or users params provided"
 
 		log.Error(response)
 		return echo.NewHTTPError(http.StatusBadRequest, response)
 	}
 
-	defer c.Request().Body.Close()
-	requestBody, err := ioutil.ReadAll(c.Request().Body)
-	if err != nil {
-		response := fmt.Sprintf("slack message was not sent, failed to read body, %v", err)
-
-		log.Error(response)
-		return echo.NewHTTPError(http.StatusInternalServerError, response)
-	}
-
-	slacker := slack{
-		Slack:    s,
-		channels: channels,
-		users:    users,
-		text:     string(requestBody),
-	}
+	slacker.text = text
 
 	if err := slacker.post(); err != nil {
-		response := fmt.Sprintf("slack message was not sent, channels: %v, users: %v, %v", channels, users, err)
+		response := fmt.Sprintf("slack message was not sent, channels: %v, users: %v, %v", slacker.Channels, slacker.Users, err)
 
 		log.Error(response)
 		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
-	response := fmt.Sprintf("slack message successfuly sent, channels: %v, users: %v", channels, users)
+	response := fmt.Sprintf("slack message successfuly sent, channels: %v, users: %v", slacker.Channels, slacker.Users)
 	log.Info(response)
 	return echo.NewHTTPError(http.StatusOK, response)
 }

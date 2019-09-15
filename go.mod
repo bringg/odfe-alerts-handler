@@ -12,4 +12,5 @@ require (
 	github.com/nlopes/slack v0.6.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	gopkg.in/yaml.v2 v2.2.2
 )
