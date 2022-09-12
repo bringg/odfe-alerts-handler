@@ -2,7 +2,7 @@
 
 An HTTP server which used to handle webhooks triggered by [OpenDistro for Elasticsearch Alerting](https://opendistro.github.io/for-elasticsearch-docs/docs/alerting)
 
-> Notice, the readme is for `0.2.x` version
+> Notice, the readme is for `0.3.x` version
 
 ## Why?
 
@@ -22,25 +22,29 @@ Download latest version for your platform from [releases](https://github.com/bri
 
 ## With Docker
 
-    docker run --rm -p 8080:8080 bringg/odfe-alerts-handler --help
+```shell
+docker run --rm -p 8080:8080 bringg/odfe-alerts-handler --help
+```
 
 ## Usage
 
-    usage: odfe-alerts-handler [<flags>]
+```plain
+usage: odfe-alerts-handler [<flags>]
 
-    Flags:
-    -h, --help                   Show context-sensitive help (also try --help-long and --help-man).
-        --web.listen-address=":8080"
-                                Address to listen on for incoming HTTP requests.
-        --smtp.host="localhost"  SMTP server hostname.
-        --smtp.port=25           SMTP server port.
-        --smtp.username=""       SMTP server login username.
-        --smtp.password=""       SMTP server login password.
-        --smtp.from="opendistro@localhost"
-                                SMTP from address.
-        --smtp.default-subject="Opendistro Alert fired"
-                                SMTP default subject.
-        --slack.token=""         Slack token for posting messages.
+Flags:
+-h, --help                   Show context-sensitive help (also try --help-long and --help-man).
+    --web.listen-address=":8080"
+                            Address to listen on for incoming HTTP requests.
+    --smtp.host="localhost"  SMTP server hostname.
+    --smtp.port=25           SMTP server port.
+    --smtp.username=""       SMTP server login username.
+    --smtp.password=""       SMTP server login password.
+    --smtp.from="opendistro@localhost"
+                            SMTP from address.
+    --smtp.default-subject="Opendistro Alert fired"
+                            SMTP default subject.
+    --slack.token=""         Slack token for posting messages.
+```
 
 ## Configure ODFE Alerting destinations
 
@@ -59,7 +63,7 @@ Download latest version for your platform from [releases](https://github.com/bri
 
 ```yaml
 to: ['example@test.com']
-subject: ['Optional subject param']
+subject: Optional subject param
 ---
 This is the body of the message
 Here you can use the templeting as usual...
@@ -86,8 +90,8 @@ Optionally, for `channels` you can omit the leading `#`.
 ## Creating a release
 
 ```shell
-RELEASE_TITLE="First release"
-RELEASE_VERSION=0.2.0
+RELEASE_TITLE="Module maintenance, and fix slack deprecations"
+RELEASE_VERSION=0.3.0
 
 git tag -a v${RELEASE_VERSION} -m "${RELEASE_TITLE}"
 git push --tags
