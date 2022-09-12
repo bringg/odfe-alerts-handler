@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	slackAPI "github.com/nlopes/slack"
+	slackAPI "github.com/slack-go/slack"
 )
 
 // Slack used to configure common params for posting messages
@@ -61,13 +61,7 @@ func (s slack) postToUsers() error {
 			continue
 		}
 
-		_, _, channelID, err := s.getClient().OpenIMChannel(user.ID)
-		if err != nil {
-			result = multierror.Append(result, err)
-			continue
-		}
-
-		_, _, err = s.getClient().PostMessage(channelID, slackAPI.MsgOptionText(string(s.text), false))
+		_, _, err = s.getClient().PostMessage(user.ID, slackAPI.MsgOptionText(string(s.text), false), slackAPI.MsgOptionAsUser(true))
 		if err != nil {
 			result = multierror.Append(result, err)
 		}
