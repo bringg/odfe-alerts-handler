@@ -2,7 +2,7 @@ version: 2
 updates:
 - package-ecosystem: gomod
   directory: "/"
-  assignees: ["bringg/devops"]
+  reviewers: ["bringg/devops"]
   schedule:
     interval: "weekly"
     day: saturday
