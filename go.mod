@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
-	github.com/labstack/echo/v4 v4.11.2
+	github.com/labstack/echo/v4 v4.11.3
 	github.com/labstack/gommon v0.4.0
 	github.com/slack-go/slack v0.12.3
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
