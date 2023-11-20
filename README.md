@@ -91,7 +91,7 @@ Optionally, for `channels` you can omit the leading `#`.
 
 ```shell
 RELEASE_TITLE="Module maintenance, and fix slack deprecations"
-RELEASE_VERSION=0.3.1
+RELEASE_VERSION=0.3.2
 
 git tag -a v${RELEASE_VERSION} -m "${RELEASE_TITLE}"
 git push --tags
