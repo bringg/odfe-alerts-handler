@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/bringg/odfe-alerts-handler/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const shutdownTimeout time.Duration = 60 * time.Second
