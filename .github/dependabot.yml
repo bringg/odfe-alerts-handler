@@ -1,8 +1,16 @@
 version: 2
+
 updates:
 - package-ecosystem: gomod
   directory: "/"
   reviewers: ["bringg/devops"]
   schedule:
-    interval: "weekly"
+    interval: weekly
+    day: saturday
+
+- package-ecosystem: github-actions
+  directory: "/"
+  reviewers: ["bringg/devops"]
+  schedule:
+    interval: weekly
     day: saturday
