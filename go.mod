@@ -8,7 +8,7 @@ require (
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/labstack/gommon v0.4.2
-	github.com/slack-go/slack v0.16.0
+	github.com/slack-go/slack v0.17.3
 	gopkg.in/yaml.v2 v2.4.0
 )
 
