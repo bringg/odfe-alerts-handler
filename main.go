@@ -33,6 +33,10 @@ func main() {
 		smtpFrom           = kingpin.Flag("smtp.from", "SMTP from address.").Default(fmt.Sprintf("opendistro@%s", hostname)).String()
 		smtpDefaultSubject = kingpin.Flag("smtp.default-subject", "SMTP default subject.").Default("Opendistro Alert fired").String()
 		slackToken         = kingpin.Flag("slack.token", "Slack token for posting messages.").Default("").String()
+
+		incidentIOURL          = kingpin.Flag("incident.io.url", "incident.io HTTP alert source URL.").Default("").String()
+		incidentIOToken        = kingpin.Flag("incident.io.token", "incident.io alert source token.").Default("").String()
+		incidentIODefaultTitle = kingpin.Flag("incident.io.default-title", "incident.io default alert title.").Default("Opendistro Alert fired").String()
 	)
 
 	kingpin.HelpFlag.Short('h')
@@ -51,11 +55,18 @@ func main() {
 		Token: *slackToken,
 	}
 
+	incidentIOHandler := handlers.IncidentIO{
+		URL:          *incidentIOURL,
+		Token:        *incidentIOToken,
+		DefaultTitle: *incidentIODefaultTitle,
+	}
+
 	e := echo.New()
 	e.HideBanner = true
 
 	e.POST("/slack", slackHandler.EchoHandler)
 	e.POST("/email", emailHandler.EchoHandler)
+	e.POST("/incident.io", incidentIOHandler.EchoHandler)
 
 	s := &http.Server{
 		Addr: *listenAddress,
