@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /src/app
 
@@ -9,8 +9,8 @@ RUN apk add --no-cache git \
 COPY . .
 RUN go install
 
-FROM alpine:3.18
-LABEL maintainer "Alex Simenduev <shamil.si@gmail.com>"
+FROM alpine:3.24
+LABEL maintainer="Alex Simenduev <shamil.si@gmail.com>"
 
 ENTRYPOINT ["odfe-alerts-handler"]
 

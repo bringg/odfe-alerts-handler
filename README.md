@@ -155,6 +155,27 @@ such trigger, and they all collapse into one alert.
 
 Alerts are always sent as `firing`.
 
+## Development
+
+Install the required tools (golangci-lint and GoReleaser) into `$(go env GOPATH)/bin`:
+
+```shell
+make tools
+```
+
+Then use any of the make targets:
+
+```shell
+make lint           # run golangci-lint
+make fmt            # apply gofmt/gofumpt/goimports
+make unit           # run the tests
+make test           # lint + tests
+make build          # compile all packages
+make release-check  # validate .goreleaser.yml
+make snapshot       # build a local snapshot release
+make upgrade-deps   # upgrade all module dependencies
+```
+
 ## Creating a release
 
 ```shell
@@ -163,7 +184,7 @@ RELEASE_VERSION=0.4.0
 
 git tag -a v${RELEASE_VERSION} -m "${RELEASE_TITLE}"
 git push --tags
-goreleaser --rm-dist
+goreleaser release --clean
 ```
 
 ## License

@@ -56,7 +56,6 @@ func (e Email) EchoHandler(c echo.Context) error {
 
 	defer c.Request().Body.Close()
 	data, err := parseBody(c.Request().Body, &emailer)
-
 	if err != nil {
 		response := fmt.Sprintf("email was not sent, %v", err)
 
@@ -80,7 +79,7 @@ func (e Email) EchoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
-	response := fmt.Sprintf("email successfuly sent, to: %v, subject: %s", emailer.To, emailer.Subject)
+	response := fmt.Sprintf("email successfully sent, to: %v, subject: %s", emailer.To, emailer.Subject)
 	log.Info(response)
 	return echo.NewHTTPError(http.StatusOK, response)
 }

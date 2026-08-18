@@ -64,7 +64,6 @@ func (i incidentIO) create() error {
 		SourceURL:        i.SourceURL,
 		Metadata:         i.Metadata,
 	})
-
 	if err != nil {
 		return fmt.Errorf("cannot marshal alert event, %v", err)
 	}
@@ -110,7 +109,6 @@ func (i IncidentIO) EchoHandler(c echo.Context) error {
 
 	defer c.Request().Body.Close()
 	description, err := parseBody(c.Request().Body, &alerter)
-
 	if err != nil {
 		response := fmt.Sprintf("incident.io alert was not sent, %v", err)
 

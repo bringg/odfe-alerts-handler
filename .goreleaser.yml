@@ -1,4 +1,6 @@
 ---
+version: 2
+
 before:
   hooks:
   - go mod tidy
@@ -11,4 +13,4 @@ builds:
   - arm64
 
 changelog:
-  skip: true
+  disable: true

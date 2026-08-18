@@ -42,7 +42,7 @@ func (s slack) postToChannels() error {
 			channel = "#" + channel
 		}
 
-		if _, _, err := s.getClient().PostMessage(channel, slackAPI.MsgOptionText(string(s.text), false)); err != nil {
+		if _, _, err := s.getClient().PostMessage(channel, slackAPI.MsgOptionText(s.text, false)); err != nil {
 			result = multierror.Append(result, err)
 		}
 	}
@@ -61,7 +61,7 @@ func (s slack) postToUsers() error {
 			continue
 		}
 
-		_, _, err = s.getClient().PostMessage(user.ID, slackAPI.MsgOptionText(string(s.text), false), slackAPI.MsgOptionAsUser(true))
+		_, _, err = s.getClient().PostMessage(user.ID, slackAPI.MsgOptionText(s.text, false), slackAPI.MsgOptionAsUser(true))
 		if err != nil {
 			result = multierror.Append(result, err)
 		}
@@ -103,7 +103,6 @@ func (s Slack) EchoHandler(c echo.Context) error {
 
 	defer c.Request().Body.Close()
 	text, err := parseBody(c.Request().Body, &slacker)
-
 	if err != nil {
 		response := fmt.Sprintf("slack message was not sent, %v", err)
 
@@ -127,7 +126,7 @@ func (s Slack) EchoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, response)
 	}
 
-	response := fmt.Sprintf("slack message successfuly sent, channels: %v, users: %v", slacker.Channels, slacker.Users)
+	response := fmt.Sprintf("slack message successfully sent, channels: %v, users: %v", slacker.Channels, slacker.Users)
 	log.Info(response)
 	return echo.NewHTTPError(http.StatusOK, response)
 }

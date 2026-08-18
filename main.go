@@ -92,6 +92,6 @@ func main() {
 
 	log.Info("shutting down with graceful timeout of", shutdownTimeout)
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }
