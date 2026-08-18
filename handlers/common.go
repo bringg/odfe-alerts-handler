@@ -5,14 +5,13 @@ import (
 	"io"
 	"regexp"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 var bodySep = regexp.MustCompile("(?:^|\\s*\n)---\\s*")
 
 func parseBody(requestBody io.ReadCloser, target interface{}) (string, error) {
 	body, err := io.ReadAll(requestBody)
-
 	if err != nil {
 		return "", fmt.Errorf("failed to read body, %v", err)
 	}

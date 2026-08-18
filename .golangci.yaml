@@ -1,82 +1,43 @@
-# taken from https://github.com/bxcodec/go-clean-arch/blob/master/.golangci.yaml
+version: '2'
 
-govet:
-  check-shadowing: true
-  settings:
-    printf:
-      funcs:
-        - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
-        - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
-        - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
-        - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-golint:
-  min-confidence: 0.8
-gocyclo:
-  min-complexity: 20
-maligned:
-  suggest-new: true
-dupl:
-  threshold: 100
-goconst:
-  min-len: 2
-  min-occurrences: 5
-misspell:
-  locale: US
-lll:
-  line-length: 160
-  # tab width in spaces. Default to 1.
-  tab-width: 1
-funlen:
-  lines: 120
-  statements: 50
+run:
+  timeout: 15m
+  modules-download-mode: readonly
+  allow-parallel-runners: true
 
 linters:
-# please, do not use `enable-all`: it's deprecated and will be removed soon.
-# inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-disable-all: true
-enable:
-  - deadcode
-  - errcheck
-  - funlen
-  - goconst
-  # - gocritic
+  default: none
+
+  enable: # please keep this alphabetized
+  - gocritic
   - gocyclo
-  - golint
-  - gosec
-  - gosimple
   - govet
   - ineffassign
-  - interfacer
-  - lll
   - misspell
+  - prealloc
+  - promlinter
+  - revive
   - staticcheck
-  - structcheck
-  - typecheck
   - unconvert
   - unparam
   - unused
-  - varcheck
 
-run:
-# default concurrency is a available CPU number
-concurrency: 2
+  exclusions:
+    generated: lax
 
-skip-dirs:
-  # - test/testdata_etc
-skip-files:
-  # - .*_test.go
+    presets:
+    - comments
 
-issues:
-exclude-rules:
-  - path: internal/(cache|renameio)/
-    linters:
-      - lll
-      - gochecknoinits
-      - gocyclo
-      - funlen
-  - path: .*_test.go
-    linters:
-      - funlen
-exclude-use-default: false
-exclude:
-    - should have a package comment
+    rules:
+    - linters: ['revive']
+      text: "^unused-parameter:"
+
+    - linters: ['revive', 'staticcheck']
+      path: "_test.go"
+      text: "should not use dot imports"
+
+formatters:
+  enable: # please keep this alphabetized
+  - gofmt
+  - gofumpt
+  - goimports
